@@ -133,12 +133,12 @@ public class MIVIPA2_3 {
         System.out.println("Enter Window Size:");
         windowSize = keyboard.nextInt();
         
-        try (Scanner scan = new Scanner(new File("merchant.txt"))) {
+        try (Scanner scan = new Scanner(new File("java_projects//merchant.txt"))) {
             while (scan.hasNextLine()) {
                 String line = scan.nextLine();
-                for (int i = 0; i <= line.length() - windowSize; i++) {
+                for (int i = 0; i <= line.length() - windowSize - 1; i++) {
                     String window = line.substring(i, i + windowSize);
-                    distributionTree.insert(window, line.charAt(i + windowSize - 1));
+                    distributionTree.insert(window, line.charAt(i + windowSize));
                 }
             }
         } catch (FileNotFoundException e) {
@@ -167,7 +167,7 @@ public class MIVIPA2_3 {
         if (node != null) {
             char c = getRandomChar(node);
             System.out.println("Random character from 'the' window: " + c);
-            tree.root.counters.printDistribution();
+            tree.search("the").counters.printDistribution();
         } else {
             System.out.println("The word 'the' was not found in the text.");
         }
