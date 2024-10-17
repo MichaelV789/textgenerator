@@ -12,11 +12,11 @@ class Node {
     }
 
     void addChar(char c) {
+        System.out.println("Adding char " + c + " to node with key " + key);
         counters.occurs(c);
     }
 }
 
-// Binary search tree implementation with key and value pair
 class BinarySearchTree {
     Node root;
 
@@ -121,32 +121,37 @@ class CharDistribution {
         }
         return ' ';
     }
-    
 }
-
-
 
 public class MIVIPA2_3 {
     public static String outputStart = "";
     public static int windowSize;
+
     // Method to read and parse the text file
     public static BinarySearchTree readTextFile() {
-        
         Scanner keyboard = new Scanner(System.in);
         BinarySearchTree distributionTree = new BinarySearchTree();
-        
+    
         System.out.println("Enter Window Size:");
         windowSize = keyboard.nextInt();
-        
+    
         try (Scanner scan = new Scanner(new File("java_projects//merchant.txt"))) {
             while (scan.hasNextLine()) {
                 String line = scan.nextLine();
-                for (int i = 0; i <= line.length() - windowSize - 1; i++) {
-                    String window = line.substring(i, i + windowSize);
-                    if (i == 0 && outputStart == "") {
-                        outputStart = window;
+                
+                // Filter out non-alphabetic characters and convert to lowercase
+                String filteredLine = line.replaceAll("[^a-zA-Z]", "").toLowerCase();
+                
+                // Check if the filtered line is large enough for the window size
+                if (filteredLine.length() >= windowSize) {
+                    // Adjusted loop condition to avoid accessing out of bounds
+                    for (int i = 0; i <= filteredLine.length() - windowSize - 1; i++) {
+                        String window = filteredLine.substring(i, i + windowSize);
+                        if (i == 0 && outputStart.equals("")) {
+                            outputStart = window;
+                        }
+                        distributionTree.insert(window, filteredLine.charAt(i + windowSize));
                     }
-                    distributionTree.insert(window, line.charAt(i + windowSize));
                 }
             }
         } catch (FileNotFoundException e) {
@@ -156,8 +161,8 @@ public class MIVIPA2_3 {
         }
         return distributionTree;
     }
-
     
+
     // Get a random character from a node
     static char getRandomChar(Node node) {
         if (node == null) {
@@ -167,81 +172,63 @@ public class MIVIPA2_3 {
         return node.counters.getRandomChar();
     }
 
-    static int getInputLength(){
+    static int getInputLength() {
         String filePath = "java_projects//merchant.txt";
         int characterCount = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             int charInt;
-            
-
             while ((charInt = reader.read()) != -1) {
                 characterCount++;
             }
-
-            
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
         }
         return characterCount;
     }
 
-    public static void generateOuput(){             
+    public static void generateOutput() {
         BinarySearchTree tree = readTextFile();
-        tree.search("act");
         String output = outputStart;
         System.out.println(output);
-        for(int i = 0; i <= getInputLength(); i++){
-            System.out.println(i);
-            String searchKey = output.substring(i, i + windowSize );
+        int spaceCount = 0;
+
+        for (int i = 0; i <= getInputLength() - windowSize; i++) {
+            if (i + windowSize > output.length()) {
+                System.out.println("Reached the end of the output generation.");
+                break; // Prevent invalid substring access
+            }
+
+            String searchKey = output.substring(i, i + windowSize);
             Node node = tree.search(searchKey);
             char c = ' ';
+
             if (node != null) {
                 c = getRandomChar(node);
-                output = output + c;
+                spaceCount = 0; // Reset space count if valid character is found
             } else {
-                output = output + c;
+                System.out.println("Invalid key: " + searchKey);
+                spaceCount++;
+                if (spaceCount > 10) { // Arbitrary threshold for too many spaces
+                    System.out.println("Too many spaces generated, stopping...");
+                    break;
+                }
             }
-            
+
+            output = output + c;
         }
+
         try {
-
-            // Create a FileWriter object
-            // to write in the file
-            FileWriter fWriter = new FileWriter(
-                "java_projects//output.txt");
-
-            // Writing into file
-            // Note: The content taken above inside the
-            // string
+            FileWriter fWriter = new FileWriter("java_projects//output.txt");
             fWriter.write(output);
-
-            // Printing the contents of a file
             System.out.println(output);
-
-            // Closing the file writing connection
             fWriter.close();
-
-            // Display message for successful execution of
-            // program on the console
-            System.out.println(
-                "File is created successfully with the content.");
-        }
-
-        // Catch block to handle if exception occurs
-        catch (IOException e) {
-
-            // Print the exception
+            System.out.println("File is created successfully with the content.");
+        } catch (IOException e) {
             System.out.print(e.getMessage());
         }
     }
-    
 
     public static void main(String[] args) {
-       
-        generateOuput();
-        
-        
-        
-        
+        generateOutput();
     }
 }
