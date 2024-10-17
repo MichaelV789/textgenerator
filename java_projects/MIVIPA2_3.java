@@ -109,7 +109,8 @@ class CharDistribution {
             totalCount += counters[i];
         }
         if (totalCount == 0) {
-            return ' '; // No characters recorded, return space
+            System.out.println("No characters recorded for this node.");
+            return ' ';
         }
         int randomIndex = (int) (Math.random() * totalCount);
         for (int i = 0; i < 26; i++) {
@@ -118,8 +119,9 @@ class CharDistribution {
                 return (char) ('a' + i);
             }
         }
-        return ' '; // Default to space
+        return ' ';
     }
+    
 }
 
 
