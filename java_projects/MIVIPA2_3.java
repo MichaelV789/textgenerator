@@ -160,6 +160,7 @@ public class MIVIPA2_3 {
 
     public static void main(String[] args) {
         // this is a git test
+        // delta test
         BinarySearchTree tree = readTextFile();
         Node node = tree.search("the");
         tree.inorder();
