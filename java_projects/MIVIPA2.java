@@ -151,7 +151,7 @@ public class MIVIPA2 {
 
         StringBuilder content = new StringBuilder();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("//merchant.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("java_projects//merchant.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 content.append(line).append('\n');  // Keep newline characters
