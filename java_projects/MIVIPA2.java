@@ -80,7 +80,7 @@ class BinarySearchTree {
 }
 
 class CharDistribution {
-    private int[] counters = new int[27]; // 26 letters + space
+    private int[] counters = new int[28]; // 26 letters + space + newline
 
     public CharDistribution() {
         Arrays.fill(counters, 0); // Initialize all counts to zero
@@ -92,7 +92,7 @@ class CharDistribution {
         } else if (c == ' ') {
             counters[26]++; // Space character
         } else if (c == '\n') {
-            counters[26]++; // Treat newline as space
+            counters[27]++; // Newline character
         }
     }
 
@@ -101,11 +101,12 @@ class CharDistribution {
             System.out.println((char) ('a' + i) + ": " + counters[i]);
         }
         System.out.println("space: " + counters[26]);
+        System.out.println("newline: " + counters[27]);
     }
 
     char getRandomChar() {
         int totalCount = 0;
-        for (int i = 0; i < 26; i++) {
+        for (int i = 0; i < 28; i++) { // Include all 28 possible characters (a-z, space, newline)
             totalCount += counters[i];
         }
         if (totalCount == 0) {
@@ -113,55 +114,72 @@ class CharDistribution {
             return ' ';
         }
         int randomIndex = (int) (Math.random() * totalCount);
+
         for (int i = 0; i < 26; i++) {
             randomIndex -= counters[i];
             if (randomIndex < 0) {
                 return (char) ('a' + i);
             }
         }
-        return ' ';
+
+        // Handle space and newline separately
+        randomIndex -= counters[26];
+        if (randomIndex < 0) {
+            return ' ';
+        }
+
+        randomIndex -= counters[27];
+        if (randomIndex < 0) {
+            return '\n';
+        }
+
+        return ' '; // Default case, though it shouldn't be reached
     }
 }
 
-public class MIVIPA2_3 {
+public class MIVIPA2 {
     public static String outputStart = "";
     public static int windowSize;
 
-    // Method to read and parse the text file
+    // Method to read and parse the entire text file as a block
     public static BinarySearchTree readTextFile() {
         Scanner keyboard = new Scanner(System.in);
         BinarySearchTree distributionTree = new BinarySearchTree();
-    
+
         System.out.println("Enter Window Size:");
         windowSize = keyboard.nextInt();
-    
-        try (Scanner scan = new Scanner(new File("java_projects//merchant.txt"))) {
-            while (scan.hasNextLine()) {
-                String line = scan.nextLine();
-                
-                // Filter out non-alphabetic characters and convert to lowercase
-                String filteredLine = line.replaceAll("[^a-zA-Z]", "").toLowerCase();
-                
-                // Check if the filtered line is large enough for the window size
-                if (filteredLine.length() >= windowSize) {
-                    // Adjusted loop condition to avoid accessing out of bounds
-                    for (int i = 0; i <= filteredLine.length() - windowSize - 1; i++) {
-                        String window = filteredLine.substring(i, i + windowSize);
-                        if (i == 0 && outputStart.equals("")) {
-                            outputStart = window;
-                        }
-                        distributionTree.insert(window, filteredLine.charAt(i + windowSize));
-                    }
+
+        StringBuilder content = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("//merchant.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append('\n');  // Keep newline characters
+            }
+        } catch (IOException e) {
+            System.out.println("File not found or error reading file: " + e.getMessage());
+        }
+
+        // Process the entire content as a single block
+        String text = content.toString();
+
+        if (text.length() >= windowSize) {
+            for (int i = 0; i <= text.length() - windowSize; i++) {
+                String window = text.substring(i, i + windowSize);
+
+                if (i == 0 && outputStart.equals("")) {
+                    outputStart = window;
+                }
+
+                // Check if there's a character after the window and insert it
+                if (i + windowSize < text.length()) {
+                    distributionTree.insert(window, text.charAt(i + windowSize));
                 }
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + e.getMessage());
-        } finally {
-            keyboard.close();
         }
+
         return distributionTree;
     }
-    
 
     // Get a random character from a node
     static char getRandomChar(Node node) {
@@ -195,7 +213,7 @@ public class MIVIPA2_3 {
         for (int i = 0; i <= getInputLength() - windowSize; i++) {
             if (i + windowSize > output.length()) {
                 System.out.println("Reached the end of the output generation.");
-                break; // Prevent invalid substring access
+                break;
             }
 
             String searchKey = output.substring(i, i + windowSize);
