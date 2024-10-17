@@ -122,11 +122,14 @@ class CharDistribution {
     }
 }
 
-public class MIVIPA2_3 {
 
+
+public class MIVIPA2_3 {
+    public static String outputStart = "";
+    public static int windowSize;
     // Method to read and parse the text file
     public static BinarySearchTree readTextFile() {
-        int windowSize;
+        
         Scanner keyboard = new Scanner(System.in);
         BinarySearchTree distributionTree = new BinarySearchTree();
         
@@ -138,6 +141,9 @@ public class MIVIPA2_3 {
                 String line = scan.nextLine();
                 for (int i = 0; i <= line.length() - windowSize - 1; i++) {
                     String window = line.substring(i, i + windowSize);
+                    if (i == 0 && outputStart == "") {
+                        outputStart = window;
+                    }
                     distributionTree.insert(window, line.charAt(i + windowSize));
                 }
             }
@@ -149,6 +155,7 @@ public class MIVIPA2_3 {
         return distributionTree;
     }
 
+    
     // Get a random character from a node
     static char getRandomChar(Node node) {
         if (node == null) {
@@ -158,18 +165,81 @@ public class MIVIPA2_3 {
         return node.counters.getRandomChar();
     }
 
-    public static void main(String[] args) {
-        // this is a git test
-        // delta test
-        BinarySearchTree tree = readTextFile();
-        Node node = tree.search("the");
-        tree.inorder();
-        if (node != null) {
-            char c = getRandomChar(node);
-            System.out.println("Random character from 'the' window: " + c);
-            tree.search("the").counters.printDistribution();
-        } else {
-            System.out.println("The word 'the' was not found in the text.");
+    static int getInputLength(){
+        String filePath = "java_projects//merchant.txt";
+        int characterCount = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            int charInt;
+            
+
+            while ((charInt = reader.read()) != -1) {
+                characterCount++;
+            }
+
+            
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
         }
+        return characterCount;
+    }
+
+    public static void generateOuput(){             
+        BinarySearchTree tree = readTextFile();
+        tree.search("act");
+        String output = outputStart;
+        System.out.println(output);
+        for(int i = 0; i <= getInputLength(); i++){
+            System.out.println(i);
+            String searchKey = output.substring(i, i + windowSize );
+            Node node = tree.search(searchKey);
+            char c = ' ';
+            if (node != null) {
+                c = getRandomChar(node);
+                output = output + c;
+            } else {
+                output = output + c;
+            }
+            
+        }
+        try {
+
+            // Create a FileWriter object
+            // to write in the file
+            FileWriter fWriter = new FileWriter(
+                "java_projects//output.txt");
+
+            // Writing into file
+            // Note: The content taken above inside the
+            // string
+            fWriter.write(output);
+
+            // Printing the contents of a file
+            System.out.println(output);
+
+            // Closing the file writing connection
+            fWriter.close();
+
+            // Display message for successful execution of
+            // program on the console
+            System.out.println(
+                "File is created successfully with the content.");
+        }
+
+        // Catch block to handle if exception occurs
+        catch (IOException e) {
+
+            // Print the exception
+            System.out.print(e.getMessage());
+        }
+    }
+    
+
+    public static void main(String[] args) {
+       
+        generateOuput();
+        
+        
+        
+        
     }
 }
