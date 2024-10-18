@@ -139,7 +139,8 @@ class CharDistribution {
 
 public class MIVIPA2 {
     public static String outputStart = "";
-    public static int windowSize;
+    public static int windowSize, outputLength;
+    
 
     // Method to read and parse the entire text file as a block
     public static BinarySearchTree readTextFile() {
@@ -148,7 +149,7 @@ public class MIVIPA2 {
 
         System.out.println("Enter Window Size:");
         windowSize = keyboard.nextInt();
-
+        outputLength = getLength();
         StringBuilder content = new StringBuilder();
 
         try (BufferedReader reader = new BufferedReader(new FileReader("java_projects//merchant.txt"))) {
@@ -159,7 +160,7 @@ public class MIVIPA2 {
         } catch (IOException e) {
             System.out.println("File not found or error reading file: " + e.getMessage());
         }
-
+        keyboard.close();
         // Process the entire content as a single block
         String text = content.toString();
 
@@ -190,17 +191,10 @@ public class MIVIPA2 {
         return node.counters.getRandomChar();
     }
 
-    static int getInputLength() {
-        String filePath = "java_projects//merchant.txt";
-        int characterCount = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            int charInt;
-            while ((charInt = reader.read()) != -1) {
-                characterCount++;
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
-        }
+    static int getLength() {
+        Scanner keyboard = new Scanner(System.in);
+        System.out.println("Enter output Length");
+        int characterCount = keyboard.nextInt();
         return characterCount;
     }
 
@@ -210,7 +204,7 @@ public class MIVIPA2 {
         System.out.println(output);
         int spaceCount = 0;
 
-        for (int i = 0; i <= getInputLength() - windowSize; i++) {
+        for (int i = 0; i <= outputLength - windowSize; i++) {
             if (i + windowSize > output.length()) {
                 System.out.println("Reached the end of the output generation.");
                 break;

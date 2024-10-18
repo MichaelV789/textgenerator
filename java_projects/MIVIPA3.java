@@ -133,14 +133,14 @@ class CharDistribution {
 
 public class MIVIPA3 {
     public static String outputStart = "";
-    public static int windowSize;
+    public static int windowSize, outputLength;
 
     // Method to read and parse the entire text file as a block
     public static CustomHashMap readTextFile() {
         Scanner keyboard = new Scanner(System.in);
         System.out.println("Enter Window Size:");
         windowSize = keyboard.nextInt();
-
+        outputLength = getLength();
         CustomHashMap distributionMap = new CustomHashMap(1000); // Capacity of 1000 buckets
 
         StringBuilder content = new StringBuilder();
@@ -184,17 +184,10 @@ public class MIVIPA3 {
         return node.counters.getRandomChar();
     }
 
-    static int getInputLength() {
-        String filePath = "java_projects//merchant.txt";
-        int characterCount = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            int charInt;
-            while ((charInt = reader.read()) != -1) {
-                characterCount++;
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
-        }
+    static int getLength() {
+        Scanner keyboard = new Scanner(System.in);
+        System.out.println("Enter output Length");
+        int characterCount = keyboard.nextInt();
         return characterCount;
     }
 
@@ -204,7 +197,7 @@ public class MIVIPA3 {
         System.out.println(output);
         int spaceCount = 0;
 
-        for (int i = 0; i <= getInputLength() - windowSize; i++) {
+        for (int i = 0; i <= outputLength - windowSize; i++) {
             if (i + windowSize > output.length()) {
                 System.out.println("Reached the end of the output generation.");
                 break;
