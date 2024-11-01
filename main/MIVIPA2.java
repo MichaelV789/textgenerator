@@ -12,11 +12,11 @@ class Node {
     }
 
     void addChar(char c) {
+        System.out.println("Adding char " + c + " to node with key " + key);
         counters.occurs(c);
     }
 }
 
-// Binary search tree implementation with key and value pair
 class BinarySearchTree {
     Node root;
 
@@ -80,7 +80,7 @@ class BinarySearchTree {
 }
 
 class CharDistribution {
-    private int[] counters = new int[27]; // 26 letters + space
+    private int[] counters = new int[28]; // 26 letters + space + newline
 
     public CharDistribution() {
         Arrays.fill(counters, 0); // Initialize all counts to zero
@@ -92,7 +92,7 @@ class CharDistribution {
         } else if (c == ' ') {
             counters[26]++; // Space character
         } else if (c == '\n') {
-            counters[26]++; // Treat newline as space
+            counters[27]++; // Newline character
         }
     }
 
@@ -101,61 +101,87 @@ class CharDistribution {
             System.out.println((char) ('a' + i) + ": " + counters[i]);
         }
         System.out.println("space: " + counters[26]);
+        System.out.println("newline: " + counters[27]);
     }
 
     char getRandomChar() {
         int totalCount = 0;
-        for (int i = 0; i < 26; i++) {
+        for (int i = 0; i < 28; i++) { // Include all 28 possible characters (a-z, space, newline)
             totalCount += counters[i];
         }
         if (totalCount == 0) {
-            return ' '; // No characters recorded, return space
+            System.out.println("No characters recorded for this node.");
+            return ' ';
         }
         int randomIndex = (int) (Math.random() * totalCount);
+
         for (int i = 0; i < 26; i++) {
             randomIndex -= counters[i];
             if (randomIndex < 0) {
                 return (char) ('a' + i);
             }
         }
-        return ' '; // Default to space
+
+        // Handle space and newline separately
+        randomIndex -= counters[26];
+        if (randomIndex < 0) {
+            return ' ';
+        }
+
+        randomIndex -= counters[27];
+        if (randomIndex < 0) {
+            return '\n';
+        }
+
+        return ' '; // Default case, though it shouldn't be reached
     }
 }
 
-
-
-public class MIVIPA2_3 {
+public class MIVIPA2 {
     public static String outputStart = "";
-    public static int windowSize;
-    // Method to read and parse the text file
+    public static int windowSize, outputLength;
+    
+
+    // Method to read and parse the entire text file as a block
     public static BinarySearchTree readTextFile() {
-        
         Scanner keyboard = new Scanner(System.in);
         BinarySearchTree distributionTree = new BinarySearchTree();
-        
+
         System.out.println("Enter Window Size:");
         windowSize = keyboard.nextInt();
-        
-        try (Scanner scan = new Scanner(new File("java_projects//merchant.txt"))) {
-            while (scan.hasNextLine()) {
-                String line = scan.nextLine();
-                for (int i = 0; i <= line.length() - windowSize - 1; i++) {
-                    String window = line.substring(i, i + windowSize);
-                    if (i == 0 && outputStart == "") {
-                        outputStart = window;
-                    }
-                    distributionTree.insert(window, line.charAt(i + windowSize));
+        outputLength = getLength();
+        StringBuilder content = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("java_projects//merchant.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append('\n');  // Keep newline characters
+            }
+        } catch (IOException e) {
+            System.out.println("File not found or error reading file: " + e.getMessage());
+        }
+        keyboard.close();
+        // Process the entire content as a single block
+        String text = content.toString();
+
+        if (text.length() >= windowSize) {
+            for (int i = 0; i <= text.length() - windowSize; i++) {
+                String window = text.substring(i, i + windowSize);
+
+                if (i == 0 && outputStart.equals("")) {
+                    outputStart = window;
+                }
+
+                // Check if there's a character after the window and insert it
+                if (i + windowSize < text.length()) {
+                    distributionTree.insert(window, text.charAt(i + windowSize));
                 }
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + e.getMessage());
-        } finally {
-            keyboard.close();
         }
+
         return distributionTree;
     }
 
-    
     // Get a random character from a node
     static char getRandomChar(Node node) {
         if (node == null) {
@@ -165,81 +191,56 @@ public class MIVIPA2_3 {
         return node.counters.getRandomChar();
     }
 
-    static int getInputLength(){
-        String filePath = "java_projects//merchant.txt";
-        int characterCount = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            int charInt;
-            
-
-            while ((charInt = reader.read()) != -1) {
-                characterCount++;
-            }
-
-            
-        } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
-        }
+    static int getLength() {
+        Scanner keyboard = new Scanner(System.in);
+        System.out.println("Enter output Length");
+        int characterCount = keyboard.nextInt();
         return characterCount;
     }
 
-    public static void generateOuput(){             
+    public static void generateOutput() {
         BinarySearchTree tree = readTextFile();
-        tree.search("act");
         String output = outputStart;
         System.out.println(output);
-        for(int i = 0; i <= getInputLength(); i++){
-            System.out.println(i);
-            String searchKey = output.substring(i, i + windowSize );
+        int spaceCount = 0;
+
+        for (int i = 0; i <= outputLength - windowSize; i++) {
+            if (i + windowSize > output.length()) {
+                System.out.println("Reached the end of the output generation.");
+                break;
+            }
+
+            String searchKey = output.substring(i, i + windowSize);
             Node node = tree.search(searchKey);
             char c = ' ';
+
             if (node != null) {
                 c = getRandomChar(node);
-                output = output + c;
+                spaceCount = 0; // Reset space count if valid character is found
             } else {
-                output = output + c;
+                System.out.println("Invalid key: " + searchKey);
+                spaceCount++;
+                if (spaceCount > 10) { // Arbitrary threshold for too many spaces
+                    System.out.println("Too many spaces generated, stopping...");
+                    break;
+                }
             }
-            
+
+            output = output + c;
         }
+
         try {
-
-            // Create a FileWriter object
-            // to write in the file
-            FileWriter fWriter = new FileWriter(
-                "java_projects//output.txt");
-
-            // Writing into file
-            // Note: The content taken above inside the
-            // string
+            FileWriter fWriter = new FileWriter("java_projects//output.txt");
             fWriter.write(output);
-
-            // Printing the contents of a file
             System.out.println(output);
-
-            // Closing the file writing connection
             fWriter.close();
-
-            // Display message for successful execution of
-            // program on the console
-            System.out.println(
-                "File is created successfully with the content.");
-        }
-
-        // Catch block to handle if exception occurs
-        catch (IOException e) {
-
-            // Print the exception
+            System.out.println("File is created successfully with the content.");
+        } catch (IOException e) {
             System.out.print(e.getMessage());
         }
     }
-    
 
     public static void main(String[] args) {
-       
-        generateOuput();
-        
-        
-        
-        
+        generateOutput();
     }
 }
