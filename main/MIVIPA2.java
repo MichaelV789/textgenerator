@@ -152,7 +152,7 @@ public class MIVIPA2 {
         outputLength = getLength();
         StringBuilder content = new StringBuilder();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("C://Users//anime//git//textgenerator//main//800merchant.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("C://Users//anime//git//textgenerator//main//merchant.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 content.append(line).append('\n');  // Keep newline characters
